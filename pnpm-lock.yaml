@@ -26,12 +26,18 @@ dependencies:
   astro-icon:
     specifier: ^1.0.0-next.2
     version: 1.0.0-next.2
+  js-yaml:
+    specifier: ^4.1.0
+    version: 4.1.0
   limax:
     specifier: 4.1.0
     version: 4.1.0
   lodash.merge:
     specifier: ^4.6.2
     version: 4.6.2
+  tailwind-merge:
+    specifier: ^1.14.0
+    version: 1.14.0
   unpic:
     specifier: ^3.10.0
     version: 3.10.1
@@ -55,6 +61,9 @@ devDependencies:
   '@tailwindcss/typography':
     specifier: ^0.5.10
     version: 0.5.10(tailwindcss@3.3.3)
+  '@types/js-yaml':
+    specifier: ^4.0.9
+    version: 4.0.9
   '@types/lodash.merge':
     specifier: ^4.6.7
     version: 4.6.7
@@ -91,9 +100,6 @@ devDependencies:
   eslint-plugin-jsx-a11y:
     specifier: ^6.7.1
     version: 6.7.1(eslint@8.51.0)
-  js-yaml:
-    specifier: ^4.1.0
-    version: 4.1.0
   mdast-util-to-string:
     specifier: ^4.0.0
     version: 4.0.0
@@ -106,9 +112,6 @@ devDependencies:
   reading-time:
     specifier: ^1.5.0
     version: 1.5.0
-  tailwind-merge:
-    specifier: ^1.14.0
-    version: 1.14.0
   tailwindcss:
     specifier: ^3.3.3
     version: 3.3.3
@@ -1125,6 +1128,10 @@ packages:
 
   /@types/html-minifier-terser@7.0.0:
     resolution: {integrity: sha512-hw3bhStrg5e3FQT8qZKCJTrzt/UbEaunU1xRWJ+aNOTmeBMvE3S4Ml2HiiNnZgL8izu0LFVkHUoPFXL1s5QNpQ==}
+    dev: true
+
+  /@types/js-yaml@4.0.9:
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
     dev: true
 
   /@types/json-schema@7.0.13:
@@ -5525,7 +5532,7 @@ packages:
 
   /tailwind-merge@1.14.0:
     resolution: {integrity: sha512-3mFKyCo/MBcgyOTlrY8T7odzZFx+w+qKSMAmdFzRvqBfLlSigU6TZnlFHK0lkMwj9Bj8OYU+9yW9lmGuS0QEnQ==}
-    dev: true
+    dev: false
 
   /tailwindcss@3.3.3:
     resolution: {integrity: sha512-A0KgSkef7eE4Mf+nKJ83i75TMyq8HqY3qmFIJSWy8bNt0v1lG7jUcpGpoTFxAwYcWOphcTBLPPJg+bDfhDf52w==}
