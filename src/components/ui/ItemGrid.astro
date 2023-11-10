@@ -1,8 +1,8 @@
 ---
 import { twMerge } from 'tailwind-merge';
+import { Icon } from 'astro-icon/components';
 import type { ItemGrid } from '~/types';
 import Button from './Button.astro';
-import { Icon } from 'astro-icon/components';
 
 const { items = [], columns, defaultIcon = '', classes = {} } = Astro.props as ItemGrid;
 
@@ -14,24 +14,24 @@ const {
   icon: defaultIconClass = 'text-primary',
   action: actionClass = '',
 } = classes;
+
+const getGridCss = (columnCount: number | undefined) => {
+  switch (columnCount) {
+    case 4:
+      return 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2';
+    case 3:
+      return 'lg:grid-cols-3 sm:grid-cols-2';
+    case 2:
+      return 'sm:grid-cols-2';
+    default:
+      return '';
+  }
+};
 ---
 
 {
   items && (
-    <div
-      class={twMerge(
-        `grid mx-auto gap-8 md:gap-y-12 ${
-          columns === 4
-            ? 'lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2'
-            : columns === 3
-            ? 'lg:grid-cols-3 sm:grid-cols-2'
-            : columns === 2
-            ? 'sm:grid-cols-2 '
-            : ''
-        }`,
-        containerClass
-      )}
-    >
+    <div class={twMerge(`grid mx-auto gap-8 md:gap-y-12 ${getGridCss(columns)}`, containerClass)}>
       {items.map(({ title, description, icon, callToAction, classes: itemClasses = {} }) => (
         <div>
           <div class={twMerge('flex flex-row max-w-md', panelClass, itemClasses?.panel)}>
@@ -52,13 +52,7 @@ const {
                 />
               )}
               {callToAction && (
-                <div
-                  class={twMerge(
-                    `${title || description ? 'mt-3' : ''}`,
-                    actionClass,
-                    itemClasses?.actionClass
-                  )}
-                >
+                <div class={twMerge(`${title || description ? 'mt-3' : ''}`, actionClass, itemClasses?.actionClass)}>
                   <Button variant="link" {...callToAction} />
                 </div>
               )}

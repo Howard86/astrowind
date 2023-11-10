@@ -5,10 +5,10 @@ import { AstroSeo } from '@astrolib/seo';
 import type { Props as AstroSeoProps } from '@astrolib/seo';
 
 import { SITE, METADATA, I18N } from '~/utils/config';
-import type { MetaData } from '~/types';
 import { getCanonical } from '~/utils/permalinks';
 
 import { adaptOpenGraphImages } from '~/utils/images';
+import type { MetaData } from '~/types';
 
 export interface Props extends MetaData {
   dontUseTitleTemplate?: boolean;
@@ -28,7 +28,7 @@ const seoProps: AstroSeoProps = merge(
   {
     title: '',
     titleTemplate: '%s',
-    canonical: canonical,
+    canonical,
     noindex: true,
     nofollow: true,
     description: undefined,
@@ -53,14 +53,14 @@ const seoProps: AstroSeoProps = merge(
     twitter: METADATA?.twitter,
   },
   {
-    title: title,
+    title,
     titleTemplate: ignoreTitleTemplate ? '%s' : undefined,
-    canonical: canonical,
+    canonical,
     noindex: typeof robots?.index !== 'undefined' ? !robots.index : undefined,
     nofollow: typeof robots?.follow !== 'undefined' ? !robots.follow : undefined,
-    description: description,
+    description,
     openGraph: { url: canonical, ...openGraph },
-    twitter: twitter,
+    twitter,
   }
 );
 ---

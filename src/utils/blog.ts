@@ -1,7 +1,8 @@
 import { getCollection } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
-import type { Post } from '~/types';
 import { APP_BLOG } from '~/utils/config';
+import type { GetStaticPathsOptions } from 'astro';
+import type { Post } from '~/types';
 import { cleanSlug, trimSlash, BLOG_BASE, POST_PERMALINK_PATTERN, CATEGORY_BASE, TAG_BASE } from './permalinks';
 
 const generatePermalink = async ({
@@ -63,35 +64,28 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
   const tags = rawTags.map((tag: string) => cleanSlug(tag));
 
   return {
-    id: id,
-    slug: slug,
+    id,
+    slug,
     permalink: await generatePermalink({ id, slug, publishDate, category }),
-
-    publishDate: publishDate,
-    updateDate: updateDate,
-
-    title: title,
-    excerpt: excerpt,
-    image: image,
-
-    category: category,
-    tags: tags,
-    author: author,
-
-    draft: draft,
-
+    publishDate,
+    updateDate,
+    title,
+    excerpt,
+    image,
+    category,
+    tags,
+    author,
+    draft,
     metadata,
-
-    Content: Content,
+    Content,
     // or 'content' in case you consume from API
-
     readingTime: remarkPluginFrontmatter?.readingTime,
   };
 };
 
-const load = async function (): Promise<Array<Post>> {
+const load = async (): Promise<Array<Post>> => {
   const posts = await getCollection('post');
-  const normalizedPosts = posts.map(async (post) => await getNormalizedPost(post));
+  const normalizedPosts = posts.map(async (post) => getNormalizedPost(post));
 
   const results = (await Promise.all(normalizedPosts))
     .sort((a, b) => b.publishDate.valueOf() - a.publishDate.valueOf())
@@ -100,7 +94,7 @@ const load = async function (): Promise<Array<Post>> {
   return results;
 };
 
-let _posts: Array<Post>;
+let basePosts: Array<Post>;
 
 /** */
 export const isBlogEnabled = APP_BLOG.isEnabled;
@@ -118,11 +112,11 @@ export const blogPostsPerPage = APP_BLOG?.postsPerPage;
 
 /** */
 export const fetchPosts = async (): Promise<Array<Post>> => {
-  if (!_posts) {
-    _posts = await load();
+  if (!basePosts) {
+    basePosts = await load();
   }
 
-  return _posts;
+  return basePosts;
 };
 
 /** */
@@ -131,10 +125,8 @@ export const findPostsBySlugs = async (slugs: Array<string>): Promise<Array<Post
 
   const posts = await fetchPosts();
 
-  return slugs.reduce(function (r: Array<Post>, slug: string) {
-    posts.some(function (post: Post) {
-      return slug === post.slug && r.push(post);
-    });
+  return slugs.reduce((r: Array<Post>, slug: string) => {
+    posts.some((post: Post) => slug === post.slug && r.push(post));
     return r;
   }, []);
 };
@@ -145,24 +137,21 @@ export const findPostsByIds = async (ids: Array<string>): Promise<Array<Post>> =
 
   const posts = await fetchPosts();
 
-  return ids.reduce(function (r: Array<Post>, id: string) {
-    posts.some(function (post: Post) {
-      return id === post.id && r.push(post);
-    });
+  return ids.reduce((r: Array<Post>, id: string) => {
+    posts.some((post: Post) => id === post.id && r.push(post));
     return r;
   }, []);
 };
 
 /** */
-export const findLatestPosts = async ({ count }: { count?: number }): Promise<Array<Post>> => {
-  const _count = count || 4;
+export const findLatestPosts = async ({ count = 4 }: { count?: number }): Promise<Array<Post>> => {
   const posts = await fetchPosts();
 
-  return posts ? posts.slice(0, _count) : [];
+  return posts ? posts.slice(0, count) : [];
 };
 
 /** */
-export const getStaticPathsBlogList = async ({ paginate }) => {
+export const getStaticPathsBlogList = async ({ paginate }: GetStaticPathsOptions) => {
   if (!isBlogEnabled || !isBlogListRouteEnabled) return [];
   return paginate(await fetchPosts(), {
     params: { blog: BLOG_BASE || undefined },
@@ -182,20 +171,23 @@ export const getStaticPathsBlogPost = async () => {
 };
 
 /** */
-export const getStaticPathsBlogCategory = async ({ paginate }) => {
+export const getStaticPathsBlogCategory = async ({ paginate }: GetStaticPathsOptions) => {
   if (!isBlogEnabled || !isBlogCategoryRouteEnabled) return [];
 
   const posts = await fetchPosts();
-  const categories = new Set();
-  posts.map((post) => {
-    typeof post.category === 'string' && categories.add(post.category.toLowerCase());
+  const categories = new Set<string>();
+
+  posts.forEach((post) => {
+    if (typeof post.category === 'string') {
+      categories.add(post.category.toLowerCase());
+    }
   });
 
-  return Array.from(categories).flatMap((category: string) =>
+  return Array.from(categories).flatMap((category) =>
     paginate(
       posts.filter((post) => typeof post.category === 'string' && category === post.category.toLowerCase()),
       {
-        params: { category: category, blog: CATEGORY_BASE || undefined },
+        params: { category, blog: CATEGORY_BASE || undefined },
         pageSize: blogPostsPerPage,
         props: { category },
       }
@@ -204,20 +196,23 @@ export const getStaticPathsBlogCategory = async ({ paginate }) => {
 };
 
 /** */
-export const getStaticPathsBlogTag = async ({ paginate }) => {
+export const getStaticPathsBlogTag = async ({ paginate }: GetStaticPathsOptions) => {
   if (!isBlogEnabled || !isBlogTagRouteEnabled) return [];
 
   const posts = await fetchPosts();
-  const tags = new Set();
-  posts.map((post) => {
-    Array.isArray(post.tags) && post.tags.map((tag) => tags.add(tag.toLowerCase()));
+  const tags = new Set<string>();
+
+  posts.forEach((post) => {
+    if (Array.isArray(post.tags)) {
+      post.tags.forEach((tag) => tags.add(tag.toLowerCase()));
+    }
   });
 
   return Array.from(tags).flatMap((tag: string) =>
     paginate(
       posts.filter((post) => Array.isArray(post.tags) && post.tags.find((elem) => elem.toLowerCase() === tag)),
       {
-        params: { tag: tag, blog: TAG_BASE || undefined },
+        params: { tag, blog: TAG_BASE || undefined },
         pageSize: blogPostsPerPage,
         props: { tag },
       }

@@ -11,9 +11,7 @@ import { findImage } from '~/utils/images';
 
 export const prerender = true;
 
-export async function getStaticPaths () {
-  return await getStaticPathsBlogPost();
-}
+export const getStaticPaths = getStaticPathsBlogPost;
 
 const { post } = Astro.props;
 
@@ -38,6 +36,6 @@ const metadata = merge(
 ---
 
 <Layout metadata={metadata}>
-  <SinglePost post={{ ...post, image: image }} url={url} />
+  <SinglePost post={{ ...post, image }} url={url} />
   <ToBlogLink />
 </Layout>

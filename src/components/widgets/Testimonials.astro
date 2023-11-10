@@ -5,7 +5,6 @@ import Button from '~/components/ui/Button.astro';
 import Image from '~/components/common/Image.astro';
 import type { Testimonials } from '~/types';
 
-
 const {
   title = '',
   subtitle = '',
@@ -26,10 +25,10 @@ const {
   <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {
       testimonials &&
-        testimonials.map(({ title, testimonial, name, job, image }) => (
+        testimonials.map(({ title: cardTitle, testimonial, name, job, image }) => (
           <div class="flex h-auto">
             <div class="flex flex-col p-4 md:p-6 rounded-md shadow-xl dark:shadow-none dark:border dark:border-slate-600">
-              {title && <h2 class="text-lg font-medium leading-6 pb-4">{title}</h2>}
+              {cardTitle && <h2 class="text-lg font-medium leading-6 pb-4">{cardTitle}</h2>}
               {testimonial && (
                 <blockquote class="flex-auto">
                   <p class="text-muted">" {testimonial} "</p>

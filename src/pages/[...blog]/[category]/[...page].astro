@@ -8,9 +8,7 @@ import Pagination from '~/components/blog/Pagination.astro';
 
 export const prerender = true;
 
-export async function getStaticPaths ({ paginate }) {
-  return await getStaticPathsBlogCategory({ paginate });
-}
+export const getStaticPaths = getStaticPathsBlogCategory;
 
 const { page, category } = Astro.props;
 

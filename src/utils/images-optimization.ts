@@ -58,9 +58,7 @@ const config = {
   formats: ['image/webp'],
 };
 
-const computeHeight = (width: number, aspectRatio: number) => {
-  return Math.floor(width / aspectRatio);
-};
+const computeHeight = (width: number, aspectRatio: number) => Math.floor(width / aspectRatio);
 
 const parseAspectRatio = (aspectRatio: number | string | null | undefined): number | undefined => {
   if (typeof aspectRatio === 'number') return aspectRatio;
@@ -70,10 +68,10 @@ const parseAspectRatio = (aspectRatio: number | string | null | undefined): numb
 
     if (match) {
       const [, num, den] = match.map(Number);
-      if (den && !isNaN(num)) return num / den;
+      if (den && !Number.isNaN(num)) return num / den;
     } else {
       const numericValue = parseFloat(aspectRatio);
-      if (!isNaN(numericValue)) return numericValue;
+      if (!Number.isNaN(numericValue)) return numericValue;
     }
   }
 
@@ -260,60 +258,63 @@ export async function getImagesOptimized(
   { src: _, width, height, sizes, aspectRatio, widths, layout = 'constrained', style = '', ...rest }: ImageProps,
   transform: ImagesOptimizer = () => Promise.resolve([])
 ): Promise<{ src: string; attributes: AttributesProps }> {
+  let newWidth = width;
+  let newHeight = height;
+
   if (typeof image !== 'string') {
-    width ||= Number(image.width) || undefined;
-    height ||= typeof width === 'number' ? computeHeight(width, image.width / image.height) : undefined;
+    newWidth ||= Number(image.width) || undefined;
+    newHeight ||= typeof newWidth === 'number' ? computeHeight(newWidth, image.width / image.height) : undefined;
   }
 
-  width = (width && Number(width)) || undefined;
-  height = (height && Number(height)) || undefined;
+  newWidth = (newWidth && Number(newWidth)) || undefined;
+  newHeight = (newHeight && Number(newHeight)) || undefined;
 
-  widths ||= config.deviceSizes;
-  sizes ||= getSizes(Number(width) || undefined, layout);
-  aspectRatio = parseAspectRatio(aspectRatio);
+  const newWidths = widths || config.deviceSizes;
+
+  let newAspectRatio = parseAspectRatio(aspectRatio);
 
   // Calculate dimensions from aspect ratio
-  if (aspectRatio) {
-    if (width) {
-      if (height) {
+  if (newAspectRatio) {
+    if (newWidth) {
+      if (newHeight) {
         /* empty */
       } else {
-        height = width / aspectRatio;
+        newHeight = newWidth / newAspectRatio;
       }
-    } else if (height) {
-      width = Number(height * aspectRatio);
+    } else if (newHeight) {
+      newWidth = Number(newHeight * newAspectRatio);
     } else if (layout !== 'fullWidth') {
       // Fullwidth images have 100% width, so aspectRatio is applicable
       console.error('When aspectRatio is set, either width or height must also be set');
       console.error('Image', image);
     }
-  } else if (width && height) {
-    aspectRatio = width / height;
+  } else if (newWidth && newHeight) {
+    newAspectRatio = newWidth / newHeight;
   } else if (layout !== 'fullWidth') {
     // Fullwidth images don't need dimensions
     console.error('Either aspectRatio or both width and height must be set');
     console.error('Image', image);
   }
 
-  let breakpoints = getBreakpoints({ width: width, breakpoints: widths, layout: layout });
+  let breakpoints = getBreakpoints({ width: newWidth, breakpoints: newWidths, layout });
   breakpoints = [...new Set(breakpoints)].sort((a, b) => a - b);
 
-  const srcset = (await transform(image, breakpoints, Number(width) || undefined, Number(height) || undefined))
-    .map(({ src, width }) => `${src} ${width}w`)
+  const srcset = (await transform(image, breakpoints, Number(newWidth) || undefined, Number(newHeight) || undefined))
+    .map(({ src, width: srcWidth }) => `${src} ${srcWidth}w`)
     .join(', ');
 
   return {
     src: typeof image === 'string' ? image : image.src,
     attributes: {
-      width: width,
-      height: height,
+      width,
+      height,
       srcset: srcset || undefined,
-      sizes: sizes,
+      sizes,
       style: `${getStyle({
-        width: width,
-        height: height,
-        aspectRatio: aspectRatio,
-        layout: layout,
+        width: newWidth,
+        height: newHeight,
+        aspectRatio: newAspectRatio,
+        layout,
       })}${style ?? ''}`,
       ...rest,
     },

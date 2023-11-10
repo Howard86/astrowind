@@ -13,8 +13,7 @@ const tasksIntegration = () => {
 
       'astro:build:done': async () => {
         try {
-          const outDir = config.outDir;
-          const publicDir = config.publicDir;
+          const { outDir, publicDir } = config;
           const sitemapName = 'sitemap-index.xml';
           const sitemapFile = new URL(sitemapName, outDir);
           const robotsTxtFile = new URL('robots.txt', publicDir);

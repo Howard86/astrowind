@@ -81,7 +81,7 @@ const config = yaml.load(fs.readFileSync('src/config.yaml', 'utf8')) as {
 const DEFAULT_SITE_NAME = 'Website';
 
 const getSite = () => {
-  const _default = {
+  const base = {
     name: DEFAULT_SITE_NAME,
     site: undefined,
     base: '/',
@@ -90,13 +90,13 @@ const getSite = () => {
     googleSiteVerificationId: '',
   };
 
-  return merge({}, _default, config?.site ?? {}) as SiteConfig;
+  return merge({}, base, config?.site ?? {}) as SiteConfig;
 };
 
 const getMetadata = () => {
   const siteConfig = getSite();
 
-  const _default = {
+  const base = {
     title: {
       default: siteConfig?.name || DEFAULT_SITE_NAME,
       template: '%s',
@@ -111,16 +111,16 @@ const getMetadata = () => {
     },
   };
 
-  return merge({}, _default, config?.metadata ?? {}) as MetaDataConfig;
+  return merge({}, base, config?.metadata ?? {}) as MetaDataConfig;
 };
 
 const getI18N = () => {
-  const _default = {
+  const base = {
     language: 'en',
     textDirection: 'ltr',
   };
 
-  const value = merge({}, _default, config?.i18n ?? {});
+  const value = merge({}, base, config?.i18n ?? {});
 
   return Object.assign(value, {
     dateFormatter: new Intl.DateTimeFormat(value.language, {
@@ -133,7 +133,7 @@ const getI18N = () => {
 };
 
 const getAppBlog = () => {
-  const _default = {
+  const base = {
     isEnabled: false,
     postsPerPage: 6,
     post: {
@@ -170,21 +170,21 @@ const getAppBlog = () => {
     },
   };
 
-  return merge({}, _default, config?.apps?.blog ?? {}) as AppBlogConfig;
+  return merge({}, base, config?.apps?.blog ?? {}) as AppBlogConfig;
 };
 
 const getUI = () => {
-  const _default = {
+  const base = {
     theme: 'system',
     classes: {},
     tokens: {},
   };
 
-  return merge({}, _default, config?.ui ?? {});
+  return merge({}, base, config?.ui ?? {});
 };
 
 const getAnalytics = () => {
-  const _default = {
+  const base = {
     vendors: {
       googleAnalytics: {
         id: undefined,
@@ -193,7 +193,7 @@ const getAnalytics = () => {
     },
   };
 
-  return merge({}, _default, config?.analytics ?? {}) as AnalyticsConfig;
+  return merge({}, base, config?.analytics ?? {}) as AnalyticsConfig;
 };
 
 export const SITE = getSite();
